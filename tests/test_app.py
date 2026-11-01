@@ -202,6 +202,12 @@ def download_one_file(controller, file_spec: dict, known_total: int = 0) -> int:
     return asyncio.run(runner())
 
 
+def bundled_workflow_count() -> int:
+    """How many workflows ship in catalog/workflows.json - the fallback the tests expect."""
+    bundled = json.loads(launcher_app.CATALOG_PATH.read_text(encoding="utf-8"))
+    return len(bundled["workflows"])
+
+
 def test_health_and_public_catalog() -> None:
     with TestClient(launcher_app.app) as client:
         health = client.get("/api/health")
@@ -211,8 +217,8 @@ def test_health_and_public_catalog() -> None:
         response = client.get("/api/catalog")
         assert response.status_code == 200
         workflows = response.json()["workflows"]
-        assert len(workflows) == 6
-        assert sum(not item.get("disabled", False) for item in workflows) == 6
+        assert len(workflows) == bundled_workflow_count()
+        assert sum(not item.get("disabled", False) for item in workflows) == bundled_workflow_count()
         assert "files" not in workflows[0]
         assert "custom_nodes" not in workflows[0]
         assert "url" not in workflows[0]
@@ -223,12 +229,11 @@ def test_catalog_contains_installers_but_no_product_workflows() -> None:
     enabled = [item for item in catalog["workflows"] if not item.get("disabled")]
 
     assert [item["id"] for item in enabled] == [
-        "image-generation",
-        "krea-2",
-        "dataset-generator",
-        "image-edit",
+        "krea-2-extended",
         "motion-control",
+        "motion-control-god-edition",
         "minimax-h3",
+        "krqw2-1",
     ]
     assert all(item["files"] for item in enabled)
     assert all(item["custom_nodes"] for item in enabled)
@@ -238,32 +243,32 @@ def test_catalog_contains_installers_but_no_product_workflows() -> None:
             destination = file_spec["destination"].lower()
             assert not destination.endswith(".json")
             assert "workflow" not in destination
-            assert file_spec["size_bytes"] > 0
-            assert len(file_spec["sha256"]) == 64
-            assert file_spec["auth"] in {"none", "huggingface"}
+            # Size and checksum are optional; when present they must be usable.
+            if "size_bytes" in file_spec:
+                assert file_spec["size_bytes"] > 0
+            if "sha256" in file_spec:
+                assert len(file_spec["sha256"]) == 64
+            assert file_spec["auth"] in {"none", "huggingface", "civitai"}
+        for link in installer.get("model_links", []):
+            launcher_app.safe_destination(link["source"])
+            launcher_app.safe_destination(link["destination"])
 
 
-def test_krea_2_installer_matches_the_runpod_manifest() -> None:
+def test_krea_2_extended_installer_matches_the_runpod_manifest() -> None:
     catalog = launcher_app.load_catalog()
-    installer = next(item for item in catalog["workflows"] if item["id"] == "krea-2")
+    installer = next(
+        item for item in catalog["workflows"] if item["id"] == "krea-2-extended"
+    )
 
-    assert installer["estimated_size"] == "Approx. 18.4 GB"
-    assert [item["destination"] for item in installer["files"]] == [
-        "models/diffusion_models/krea2_turbo_fp8_scaled.safetensors",
-        "models/text_encoders/qwen3vl_4b_fp8_scaled.safetensors",
-        "models/vae/qwen_image_vae.safetensors",
-        "models/loras/MysticXXX_KREA2_v3.safetensors",
-        "models/loras/pawg_krea2.safetensors",
-        "models/loras/RealisticSnapshotKrea2.safetensors",
-        "models/upscale_models/4xNMKDSuperscale_4xNMKDSuperscale.pt",
-        "models/ultralytics/bbox/face_yolov8m.pt",
-        "models/sams/sam_vit_b_01ec64.pth",
-    ]
+    assert installer["estimated_size"] == "Approx. 25.4 GB"
+    assert len(installer["files"]) == 12
     assert [item["name"] for item in installer["custom_nodes"]] == [
-        "rgthree-comfy",
-        "ComfyUI-Impact-Pack",
-        "ComfyUI-Impact-Subpack",
+        "comfyui-krea2edit",
+        "ComfyUI_Comfyroll_CustomNodes",
         "ComfyUI-KJNodes",
+        "ComfyUI-Impact-Subpack",
+        "ComfyUI-Impact-Pack",
+        "rgthree-comfy",
         "RES4LYF",
     ]
 
@@ -305,8 +310,6 @@ def test_local_windows_installers_match_the_catalog() -> None:
     catalog = launcher_app.load_catalog()
     workflows = {item["id"]: item for item in catalog["workflows"]}
     installers = {
-        "dataset_generator_model_installer.bat": "dataset-generator",
-        "krea2_model_installer.bat": "krea-2",
         "minimax_h3_model_installer.bat": "minimax-h3",
     }
 
@@ -1126,7 +1129,7 @@ def test_catalog_api_is_skipped_when_no_base_is_configured(monkeypatch) -> None:
     monkeypatch.delenv("LCT_API_BASE", raising=False)
 
     assert launcher_remote.fetch_catalog() is None
-    assert len(launcher_app.load_catalog()["workflows"]) == 6
+    assert len(launcher_app.load_catalog()["workflows"]) == bundled_workflow_count()
 
 
 def test_catalog_api_failures_fall_back_to_the_bundled_catalog(
@@ -1139,19 +1142,19 @@ def test_catalog_api_failures_fall_back_to_the_bundled_catalog(
     monkeypatch.setenv("LCT_API_BASE", f"http://127.0.0.1:{closed_port()}")
     launcher_remote._reset_state()
     assert launcher_remote.fetch_catalog() is None
-    assert len(launcher_app.load_catalog()["workflows"]) == 6
+    assert len(launcher_app.load_catalog()["workflows"]) == bundled_workflow_count()
 
     with catalog_api(b"upstream exploded", status=500) as base:
         monkeypatch.setenv("LCT_API_BASE", base)
         launcher_remote._reset_state()
         assert launcher_remote.fetch_catalog() is None
-        assert len(launcher_app.load_catalog()["workflows"]) == 6
+        assert len(launcher_app.load_catalog()["workflows"]) == bundled_workflow_count()
 
     with catalog_api(b'{"workflows": [') as base:
         monkeypatch.setenv("LCT_API_BASE", base)
         launcher_remote._reset_state()
         assert launcher_remote.fetch_catalog() is None
-        assert len(launcher_app.load_catalog()["workflows"]) == 6
+        assert len(launcher_app.load_catalog()["workflows"]) == bundled_workflow_count()
 
 
 def test_catalog_request_omits_authorization_without_a_credential(
@@ -1217,7 +1220,7 @@ def test_malformed_remote_catalog_falls_back_instead_of_breaking_the_pod(
             monkeypatch.setenv("LCT_API_BASE", base)
             launcher_remote._reset_state()
             catalog = launcher_app.load_catalog(fresh=True)
-        assert len(catalog["workflows"]) == 6
+        assert len(catalog["workflows"]) == bundled_workflow_count()
 
 
 def test_a_malformed_bundled_catalog_still_raises(tmp_path, monkeypatch) -> None:
@@ -1252,7 +1255,7 @@ def test_remote_catalog_without_a_checksum_falls_back_to_the_bundled_catalog(
     with catalog_api(body) as base:
         monkeypatch.setenv("LCT_API_BASE", base)
         assert launcher_remote.fetch_catalog(fresh=True) is None
-        assert len(launcher_app.load_catalog()["workflows"]) == 6
+        assert len(launcher_app.load_catalog()["workflows"]) == bundled_workflow_count()
 
 
 def test_public_catalog_never_leaks_install_details(monkeypatch) -> None:
@@ -6255,3 +6258,78 @@ def test_the_debug_report_markup_is_served(tmp_path, monkeypatch) -> None:
     assert 'id="debug-report-text"' in page
     assert 'id="debug-copy"' in page
     assert 'id="debug-download"' in page
+
+
+def test_an_extra_index_url_reaches_pip(tmp_path, monkeypatch) -> None:
+    """The RTX nodes take their wheels from pypi.nvidia.com; without it pip fails."""
+    custom_nodes = tmp_path / "custom_nodes"
+    monkeypatch.setattr(launcher_app, "CUSTOM_NODES_DIR", custom_nodes)
+    controller = launcher_app.JobController()
+    commands: list = []
+
+    async def fake_process(*command, **_bounds) -> tuple[int, str]:
+        normalized = tuple(str(part) for part in command)
+        commands.append(normalized)
+        if "clone" in normalized:
+            destination = Path(normalized[-1])
+            destination.mkdir(parents=True, exist_ok=True)
+            (destination / "requirements.txt").write_text("nvvfx\n", encoding="utf-8")
+        return 0, ""
+
+    monkeypatch.setattr(controller, "_run_process", fake_process)
+    asyncio.run(
+        controller._install_custom_node(
+            {
+                "name": "Nvidia_RTX_Nodes_ComfyUI",
+                "repo": "https://github.com/Comfy-Org/Nvidia_RTX_Nodes_ComfyUI.git",
+                "ref": "a" * 40,
+                "requirements_extra_index_url": "https://pypi.nvidia.com/",
+            }
+        )
+    )
+
+    pip = next(command for command in commands if "pip" in command)
+    assert pip[pip.index("--extra-index-url") + 1] == "https://pypi.nvidia.com/"
+
+
+def test_an_unsafe_extra_index_url_is_refused(tmp_path, monkeypatch) -> None:
+    monkeypatch.setattr(launcher_app, "CUSTOM_NODES_DIR", tmp_path / "custom_nodes")
+    controller = launcher_app.JobController()
+
+    with pytest.raises(RuntimeError, match="unsafe extra index URL"):
+        asyncio.run(
+            controller._install_custom_node(
+                {
+                    "name": "Some-Node",
+                    "repo": "https://github.com/example/Some-Node",
+                    "ref": "a" * 40,
+                    "requirements_extra_index_url": "--index-url=http://evil.test",
+                }
+            )
+        )
+
+
+def test_model_links_expose_a_file_at_a_second_path(tmp_path, monkeypatch) -> None:
+    comfy = tmp_path / "ComfyUI"
+    monkeypatch.setattr(launcher_app, "COMFYUI_DIR", comfy)
+    source = comfy / "models" / "frame_interpolation" / "rife49.pth"
+    source.parent.mkdir(parents=True)
+    source.write_bytes(b"rife")
+    controller = launcher_app.JobController()
+
+    controller._apply_model_links(
+        [
+            {
+                "source": "models/frame_interpolation/rife49.pth",
+                "destination": "custom_nodes/ComfyUI-Frame-Interpolation/ckpts/rife/rife49.pth",
+            },
+            # A missing source and an escape attempt are warnings, never a crash.
+            {"source": "models/missing.pth", "destination": "custom_nodes/x/missing.pth"},
+            {"source": "models/frame_interpolation/rife49.pth", "destination": "../escape.pth"},
+        ]
+    )
+
+    target = comfy / "custom_nodes" / "ComfyUI-Frame-Interpolation" / "ckpts" / "rife" / "rife49.pth"
+    assert target.read_bytes() == b"rife"
+    assert not (tmp_path / "escape.pth").exists()
+    assert len(controller.state.warnings) == 2

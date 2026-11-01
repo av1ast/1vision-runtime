@@ -2874,6 +2874,34 @@ class JobController:
         if nodes:
             await self._install_custom_nodes(nodes)
 
+        # After the nodes, because a link usually points into a node's own folder,
+        # which only exists once that node has been cloned.
+        self._apply_model_links(workflow.get("model_links") or [])
+
+    def _apply_model_links(self, links: list[dict[str, Any]]) -> None:
+        """Expose an already-downloaded file at a second path some node insists on.
+
+        A hard link costs no disk space; a symlink is the fallback across filesystems.
+        Never fatal: a missing link degrades one node, it does not undo an install.
+        """
+        for link in links:
+            try:
+                source = safe_destination(str(link.get("source", "")))
+                target = safe_destination(str(link.get("destination", "")))
+                if not source.is_file():
+                    raise RuntimeError(f"{source.name} was not downloaded")
+                if target.is_file() and target.stat().st_size == source.stat().st_size:
+                    continue
+                target.parent.mkdir(parents=True, exist_ok=True)
+                if target.is_symlink() or target.exists():
+                    target.unlink()
+                try:
+                    os.link(source, target)
+                except OSError:
+                    target.symlink_to(source)
+            except Exception as exc:  # noqa: BLE001 - reported, never fatal
+                self.add_warning(f"Model link {link.get('destination')!r}: {exc}")
+
     async def _download_file(
         self,
         client: httpx.AsyncClient,
@@ -3889,6 +3917,17 @@ class JobController:
         if not destination.is_relative_to(CUSTOM_NODES_DIR.resolve()):
             raise RuntimeError(f"Unsafe custom node destination: {name}")
 
+        # Some node packs publish wheels on a vendor index (pypi.nvidia.com for the RTX
+        # nodes). The value reaches pip's argv, so it must be a plain HTTPS URL.
+        extra_index_args: list[str] = []
+        extra_index = str(node.get("requirements_extra_index_url") or "").strip()
+        if extra_index:
+            if not re.fullmatch(r"https://[A-Za-z0-9.-]+(/[A-Za-z0-9._~/-]*)?", extra_index):
+                raise RuntimeError(
+                    f"Custom node {name} has an unsafe extra index URL: {extra_index!r}"
+                )
+            extra_index_args = ["--extra-index-url", extra_index]
+
         if not destination.exists():
             step("cloning")
             clone_started = time.monotonic()
@@ -4018,6 +4057,7 @@ class JobController:
                 "15",
                 "--retries",
                 "3",
+                *extra_index_args,
                 "-r",
                 requirements,
                 timeout=1800,
@@ -4041,6 +4081,7 @@ class JobController:
                     "15",
                     "--retries",
                     "3",
+                    *extra_index_args,
                     "-r",
                     requirements,
                     timeout=1800,
