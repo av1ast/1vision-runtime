@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Install a complete 1Vision ComfyUI workflow with one click."
+    />
+    <title>1Vision Model Grabber</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="/" aria-label="1Vision Model Grabber">1Vision</a>
+        <nav class="tabs" aria-label="Model Grabber sections">
+          <button class="tab is-active" type="button" data-view-target="workflows">
+            Workflows
+          </button>
+          <button class="tab" type="button" data-view-target="custom-models">
+            Custom models
+          </button>
+          <button class="tab" type="button" data-view-target="custom-nodes">
+            Custom nodes
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="shell">
+      <!-- Workflows: a hero, the live install card, then a numbered list. -->
+      <section id="view-workflows" class="app-view view-workflows" data-view="workflows">
+        <header class="hero">
+          <p class="eyebrow">ComfyUI on RunPod</p>
+          <h1>Pick a workflow. <span class="accent">We install the rest.</span></h1>
+          <p class="lede">
+            Every model, supporting file and custom node a workflow needs, downloaded and
+            placed in one click.
+          </p>
+        </header>
+
+        <section id="job-panel" class="job-panel" aria-live="polite" hidden>
+          <div class="job-topline">
+            <div>
+              <p id="job-kicker" class="job-kicker">PREPARING</p>
+              <h2 id="job-title">Preparing workflow</h2>
+            </div>
+            <strong id="job-percent" class="job-percent">0%</strong>
+          </div>
+
+          <div
+            class="progress-track"
+            role="progressbar"
+            aria-label="Workflow installation progress"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+          >
+            <div id="progress-fill" class="progress-fill"></div>
+          </div>
+
+          <div class="job-details">
+            <p id="job-message">Preparing workflow...</p>
+            <p id="job-metrics" class="job-metrics"></p>
+          </div>
+
+          <div id="job-warnings" class="job-warnings" hidden></div>
+          <p id="job-error" class="job-error" hidden></p>
+
+          <div id="debug-report" class="debug-report" hidden>
+            <div class="debug-report-actions">
+              <button id="debug-copy" class="button button-ghost" type="button">
+                Copy
+              </button>
+              <button id="debug-download" class="button button-ghost" type="button">
+                Download
+              </button>
+            </div>
+            <pre id="debug-report-text" class="debug-report-text"></pre>
+          </div>
+
+          <div class="job-actions">
+            <button id="cancel-button" class="button button-ghost" type="button">
+              Cancel
+            </button>
+            <button id="debug-button" class="button button-ghost" type="button">
+              Debug
+            </button>
+            <button id="restart-button" class="button button-ghost" type="button" hidden>
+              Restart ComfyUI
+            </button>
+            <a id="comfy-button" class="button button-primary" href="#" hidden>
+              Open ComfyUI <span aria-hidden="true">&rarr;</span>
+            </a>
+          </div>
+        </section>
+
+        <section class="workflow-section" aria-labelledby="workflow-heading">
+          <div class="list-heading">
+            <h2 id="workflow-heading">Workflows</h2>
+            <span id="catalog-state" class="catalog-state">Loading...</span>
+          </div>
+          <div id="workflow-grid" class="workflow-list" aria-live="polite"></div>
+        </section>
+      </section>
+
+      <!-- Custom models: a pinned form on the left, the queue on the right. -->
+      <section
+        id="view-custom-models"
+        class="app-view view-split"
+        data-view="custom-models"
+        hidden
+      >
+        <aside class="compose-card">
+          <p class="eyebrow">Custom models</p>
+          <h1>Add a model</h1>
+          <p class="lede">
+            Paste a direct link and pick a folder inside <code>ComfyUI/models</code>.
+            Every download joins one queue.
+          </p>
+          <div id="model-draft-list" class="model-draft-list"></div>
+        </aside>
+
+        <div class="split-main">
+          <section class="list-block" aria-labelledby="queue-heading">
+            <div class="list-heading">
+              <h2 id="queue-heading">Download queue</h2>
+              <span id="custom-queue-state" class="catalog-state">0 queued</span>
+            </div>
+            <div id="model-queue-list" class="model-job-list" aria-live="polite"></div>
+          </section>
+
+          <section class="list-block" aria-labelledby="downloaded-heading">
+            <div class="list-heading">
+              <h2 id="downloaded-heading">Downloaded models</h2>
+              <span id="downloaded-model-state" class="catalog-state">0 models</span>
+            </div>
+            <div id="downloaded-model-list" class="model-job-list" aria-live="polite">
+              <p class="empty-state">Completed downloads will appear here.</p>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <!-- Custom nodes: centred, one wide command bar, then the lists. -->
+      <section
+        id="view-custom-nodes"
+        class="app-view view-centered"
+        data-view="custom-nodes"
+        hidden
+      >
+        <header class="hero hero-centered">
+          <p class="eyebrow">Custom nodes</p>
+          <h1>Install from <span class="accent">GitHub</span></h1>
+          <p class="lede">
+            Paste a repository link. It is cloned into <code>ComfyUI/custom_nodes</code>
+            with its requirements installed.
+          </p>
+        </header>
+
+        <section class="command-bar-section" aria-labelledby="node-queue-heading">
+          <h2 id="node-queue-heading" class="sr-only">Install queue</h2>
+          <div id="node-draft-list" class="model-draft-list command-bar"></div>
+          <div class="list-heading list-heading-quiet">
+            <span>Install queue</span>
+            <span id="custom-node-queue-state" class="catalog-state">0 queued</span>
+          </div>
+          <div id="node-queue-list" class="model-job-list" aria-live="polite"></div>
+        </section>
+
+        <section class="list-block" aria-labelledby="installed-node-heading">
+          <div class="list-heading">
+            <h2 id="installed-node-heading">Installed nodes</h2>
+            <div class="list-heading-actions">
+              <span id="installed-node-state" class="catalog-state">0 nodes</span>
+              <button
+                id="custom-node-restart-button"
+                class="button button-ghost button-small"
+                type="button"
+                hidden
+              >
+                Restart ComfyUI
+              </button>
+            </div>
+          </div>
+          <p id="custom-node-restart-error" class="draft-error" hidden></p>
+          <div id="installed-node-list" class="model-job-list" aria-live="polite">
+            <p class="empty-state">Completed custom nodes will appear here.</p>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <footer class="site-footer">1Vision &middot; ComfyUI workflow installer</footer>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>

@@ -1,0 +1,11 @@
+.env
+.env.*
+!.env.example
+.pytest_cache/
+.venv/
+__pycache__/
+*.py[cod]
+*.part
+
+*.mp4
+desktop.ini
