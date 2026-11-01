@@ -4434,7 +4434,22 @@ async def account_logout() -> dict[str, Any]:
 
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon() -> FileResponse:
-    return FileResponse(STATIC_DIR / "logo.png", media_type="image/png")
+    return FileResponse(STATIC_DIR / "fav" / "favicon.ico", media_type="image/x-icon")
+
+
+@app.middleware("http")
+async def revalidate_static_files(request, call_next):
+    """Make browsers check for a newer page, stylesheet or script on every load.
+
+    Pods pull a fresh UI from GitHub at boot, so a heuristically cached styles.css next
+    to a new index.html renders the page half old, half new. no-cache still lets the
+    browser reuse its copy - the ETag check costs one tiny request - it just never
+    trusts it blindly.
+    """
+    response = await call_next(request)
+    if not request.url.path.startswith("/api/"):
+        response.headers.setdefault("Cache-Control", "no-cache")
+    return response
 
 
 app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")
