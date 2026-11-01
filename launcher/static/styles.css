@@ -147,12 +147,25 @@ code {
 }
 
 .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
   border-radius: var(--radius-sm);
   color: #fafafa;
   font-size: var(--text-xl);
   font-weight: 600;
   letter-spacing: -0.025em;
   text-decoration: none;
+}
+
+/* The logo file is square with generous padding around the mark, so it is drawn
+   larger than the text and pulled in on the left to sit flush with the page edge. */
+.brand-mark {
+  display: block;
+  width: 40px;
+  height: 40px;
+  margin: -8px -4px -8px -6px;
+  object-fit: contain;
 }
 
 /* Pill tabs in a single track, replacing the old left sidebar. */
