@@ -1,5 +1,5 @@
 {
-  "version": 19,
+  "version": 20,
   "workflows": [
     {
       "accent": "#5271ff",
@@ -418,7 +418,7 @@
           "name": "Wan 2.2 Fun A14B low-noise MPS LoRA",
           "sha256": "0e6ac56c89068386b002b18ab4542207e2c0c431f3c4ac367ae64fece85dd680",
           "size_bytes": 858457436,
-          "url": "https://huggingface.co/smegmarip/ComfyUI/resolve/main/loras/Wan2.2-Fun-A14B-InP-low-noise-MPS.safetensors"
+          "url": "https://huggingface.co/alibaba-pai/Wan2.2-Fun-Reward-LoRAs/resolve/main/Wan2.2-Fun-A14B-InP-low-noise-MPS.safetensors"
         },
         {
           "auth": "none",
