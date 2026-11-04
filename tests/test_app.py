@@ -260,8 +260,8 @@ def test_krea_2_extended_installer_matches_the_runpod_manifest() -> None:
         item for item in catalog["workflows"] if item["id"] == "krea-2-extended"
     )
 
-    assert installer["estimated_size"] == "Approx. 25.4 GB"
-    assert len(installer["files"]) == 12
+    assert installer["estimated_size"] == "Approx. 25.6 GB"
+    assert len(installer["files"]) == 13
     assert [item["name"] for item in installer["custom_nodes"]] == [
         "comfyui-krea2edit",
         "ComfyUI_Comfyroll_CustomNodes",

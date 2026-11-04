@@ -1,5 +1,5 @@
 {
-  "version": 18,
+  "version": 19,
   "workflows": [
     {
       "accent": "#5271ff",
@@ -48,8 +48,8 @@
           "repo": "https://github.com/ClownsharkBatwing/RES4LYF.git"
         }
       ],
-      "description": "Install the extended Krea 2 model stack, six workflow LoRAs, upscaler, detection models and seven supporting custom-node packs.",
-      "estimated_size": "Approx. 25.4 GB",
+      "description": "Install the extended Krea 2 model stack, seven workflow LoRAs, upscaler, detection models and seven supporting custom-node packs.",
+      "estimated_size": "Approx. 25.6 GB",
       "files": [
         {
           "auth": "none",
@@ -106,6 +106,14 @@
           "sha256": "7b4a37a9b9ec3885bf39242f2d4f691f186d959cbaaa30b0630e4631767b425e",
           "size_bytes": 1562410408,
           "url": "https://huggingface.co/gravedigga/loras/resolve/main/famegrid_spicy.safetensors"
+        },
+        {
+          "auth": "none",
+          "destination": "models/loras/phone_photography_2025_krea2.safetensors",
+          "name": "Phone Photography 2025 Krea 2 LoRA",
+          "sha256": "fd1052897277f2cc43d7fbcb081026a031a259c7e408efa51b507b1b82ec1126",
+          "size_bytes": 228588904,
+          "url": "https://huggingface.co/olosalta/loras/resolve/main/phone_photography_2025_krea2.safetensors"
         },
         {
           "auth": "none",
