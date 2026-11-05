@@ -224,13 +224,23 @@ def test_health_and_public_catalog() -> None:
         assert "url" not in workflows[0]
 
 
+def test_renamed_workflows_still_show_their_old_names() -> None:
+    with TestClient(launcher_app.app) as client:
+        workflows = client.get("/api/catalog").json()["workflows"]
+
+    formerly = {item["title"]: item.get("formerly") for item in workflows}
+    assert formerly["Krea2"] == "Krea 2 Extended"
+    assert formerly["Motion Control"] == "Motion Control GOD Edition"
+    assert formerly["KreaQwen"] == "KRQW2.1"
+    assert formerly["MiniMax H3"] is None
+
+
 def test_catalog_contains_installers_but_no_product_workflows() -> None:
     catalog = launcher_app.load_catalog()
     enabled = [item for item in catalog["workflows"] if not item.get("disabled")]
 
     assert [item["id"] for item in enabled] == [
         "krea-2-extended",
-        "motion-control",
         "motion-control-god-edition",
         "minimax-h3",
         "krqw2-1",

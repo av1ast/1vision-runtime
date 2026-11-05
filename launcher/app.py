@@ -603,6 +603,7 @@ def public_catalog() -> dict[str, Any]:
     allowed = {
         "id",
         "title",
+        "formerly",
         "description",
         "badge",
         "accent",

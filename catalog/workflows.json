@@ -1,5 +1,5 @@
 {
-  "version": 20,
+  "version": 21,
   "workflows": [
     {
       "accent": "#5271ff",
@@ -157,134 +157,8 @@
         }
       ],
       "id": "krea-2-extended",
-      "title": "Krea 2 Extended"
-    },
-    {
-      "accent": "#5271ff",
-      "badge": "READY",
-      "custom_nodes": [
-        {
-          "install_requirements": true,
-          "name": "ComfyUI-SAM3",
-          "ref": "de0ff5d2c2ea435d29f800abfa568cffdfb94773",
-          "repo": "https://github.com/PozzettiAndrea/ComfyUI-SAM3.git"
-        },
-        {
-          "install_requirements": true,
-          "name": "ComfyUI-VideoHelperSuite",
-          "ref": "4ee72c065db22c9d96c2427954dc69e7b908444b",
-          "repo": "https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite.git"
-        },
-        {
-          "install_requirements": true,
-          "name": "ComfyUI-Logic",
-          "ref": "ae0ca532177eef7325d207f8b8a2f88f4d1a837c",
-          "repo": "https://github.com/theUpsider/ComfyUI-Logic.git"
-        },
-        {
-          "install_requirements": true,
-          "name": "Nvidia_RTX_Nodes_ComfyUI",
-          "ref": "892515e3eb9a4920a131a502a047e47adca9eb0d",
-          "repo": "https://github.com/Comfy-Org/Nvidia_RTX_Nodes_ComfyUI.git",
-          "requirements_extra_index_url": "https://pypi.nvidia.com/"
-        },
-        {
-          "install_requirements": true,
-          "name": "ComfyUI-Easy-Use",
-          "ref": "271685698b0935c5b0ecca86a58c3817931cd205",
-          "repo": "https://github.com/yolain/ComfyUI-Easy-Use.git"
-        },
-        {
-          "install_requirements": true,
-          "name": "ComfyUI-Custom-Scripts",
-          "ref": "609f3afaa74b2f88ef9ce8d939626065e3247469",
-          "repo": "https://github.com/pythongosssss/ComfyUI-Custom-Scripts.git"
-        },
-        {
-          "install_requirements": true,
-          "name": "ComfyUI-Impact-Pack",
-          "ref": "429d0159ad429e64d2b3916e6e7be9c22d025c3c",
-          "repo": "https://github.com/ltdrdata/ComfyUI-Impact-Pack.git"
-        }
-      ],
-      "description": "Install the complete WAN SCAIL 2 FP16 motion-control stack, including acceleration and motion LoRAs, CLIP Vision, UMT5, VAE, SAM 3.1 and seven supporting custom-node packs.",
-      "estimated_size": "Approx. 45.4 GB",
-      "files": [
-        {
-          "auth": "none",
-          "destination": "models/checkpoints/sam3.1_multiplex_fp16.safetensors",
-          "name": "SAM 3.1 Multiplex",
-          "sha256": "9ba99c92703c2e8b4f47de2d34a539bb8e18923049e238b780d70dbe6368eb03",
-          "size_bytes": 1745546848,
-          "url": "https://huggingface.co/Comfy-Org/sam3.1/resolve/main/checkpoints/sam3.1_multiplex_fp16.safetensors"
-        },
-        {
-          "auth": "none",
-          "destination": "models/clip_vision/clip_vision_h.safetensors",
-          "name": "Wan CLIP Vision",
-          "sha256": "64a7ef761bfccbadbaa3da77366aac4185a6c58fa5de5f589b42a65bcc21f161",
-          "size_bytes": 1264219396,
-          "url": "https://huggingface.co/Comfy-Org/Wan_2.1_ComfyUI_repackaged/resolve/main/split_files/clip_vision/clip_vision_h.safetensors"
-        },
-        {
-          "auth": "none",
-          "destination": "models/diffusion_models/wan2.1_14B_SCAIL_2_fp16.safetensors",
-          "name": "Wan 2.1 SCAIL 2 FP16",
-          "sha256": "e3f9cd52184949ee8ffdc01ba14de4c619e0ddfa09ae105cb7efce5c8dc9fe43",
-          "size_bytes": 32794040328,
-          "url": "https://huggingface.co/Comfy-Org/SCAIL-2/resolve/main/diffusion_models/wan2.1_14B_SCAIL_2_fp16.safetensors"
-        },
-        {
-          "auth": "none",
-          "destination": "models/vae/wan_2.1_vae.safetensors",
-          "name": "Wan 2.1 VAE",
-          "sha256": "2fc39d31359a4b0a64f55876d8ff7fa8d780956ae2cb13463b0223e15148976b",
-          "size_bytes": 253815318,
-          "url": "https://huggingface.co/Comfy-Org/Wan_2.1_ComfyUI_repackaged/resolve/main/split_files/vae/wan_2.1_vae.safetensors"
-        },
-        {
-          "auth": "none",
-          "destination": "models/loras/wan2.2_i2v_A14b_low_noise_lora_rank64_lightx2v_4step_1022.safetensors",
-          "name": "Wan 2.2 I2V LightX2V 4-step LoRA",
-          "sha256": "8833bd4fd7c8eabebf0bc8ee5cfaf47f4f310ce116928a02c1adf8941dd4b0f1",
-          "size_bytes": 739472104,
-          "url": "https://huggingface.co/lightx2v/Wan2.2-Distill-Loras/resolve/9ff6e8a86c2fcc7548256555ba274ecec69fefff/wan2.2_i2v_A14b_low_noise_lora_rank64_lightx2v_4step_1022.safetensors"
-        },
-        {
-          "auth": "none",
-          "destination": "models/loras/slop_twerk_LowNoise_merged3_7_v2.safetensors",
-          "name": "Slop Twerk Low Noise LoRA",
-          "sha256": "d70d23144d43ee6d7ffbd3d2d5cade1f0f9004a3e013a7c33dd2f91f37e438ea",
-          "size_bytes": 306847576,
-          "url": "https://huggingface.co/gravedigga/loras/resolve/main/slop_twerk_LowNoise_merged3_7_v2.safetensors"
-        },
-        {
-          "auth": "none",
-          "destination": "models/loras/slop_twerk_HighNoise_merged3_7_v2.safetensors",
-          "name": "Slop Twerk High Noise LoRA",
-          "sha256": "83fe88476f551aa0acdd119c6993de30910139b1635dc08c7f986fc3459d7cc5",
-          "size_bytes": 306847584,
-          "url": "https://huggingface.co/gravedigga/loras/resolve/main/slop_twerk_HighNoise_merged3_7_v2.safetensors"
-        },
-        {
-          "auth": "none",
-          "destination": "models/loras/wan2.1_SCAIL_2_DPO_lora_bf16.safetensors",
-          "name": "Wan 2.1 SCAIL 2 DPO LoRA",
-          "sha256": "b106522036f64e50f5f8ae3b808973515ff442cc2fac27b65d875eafb95b89e2",
-          "size_bytes": 1226936552,
-          "url": "https://huggingface.co/Comfy-Org/SCAIL-2/resolve/main/loras/wan2.1_SCAIL_2_DPO_lora_bf16.safetensors"
-        },
-        {
-          "auth": "none",
-          "destination": "models/text_encoders/umt5-xxl-encoder-fp8-e4m3fn-scaled.safetensors",
-          "name": "UMT5 XXL FP8 text encoder",
-          "sha256": "c3355d30191f1f066b26d93fba017ae9809dce6c627dda5f6a66eaa651204f68",
-          "size_bytes": 6735906897,
-          "url": "https://huggingface.co/UmeAiRT/ComfyUI-Auto-Installer-Assets/resolve/refs%2Fpr%2F5/models/clip/umt5-xxl-encoder-fp8-e4m3fn-scaled.safetensors"
-        }
-      ],
-      "id": "motion-control",
-      "title": "WAN Motion Control"
+      "title": "Krea2",
+      "formerly": "Krea 2 Extended"
     },
     {
       "accent": "#ff7a18",
@@ -492,7 +366,8 @@
           "source": "models/frame_interpolation/rife49.pth"
         }
       ],
-      "title": "Motion Control GOD Edition",
+      "title": "Motion Control",
+      "formerly": "Motion Control GOD Edition",
       "update_comfyui": true
     },
     {
@@ -668,7 +543,8 @@
         }
       ],
       "id": "krqw2-1",
-      "title": "KRQW2.1",
+      "title": "KreaQwen",
+      "formerly": "KRQW2.1",
       "update_comfyui": true
     }
   ]

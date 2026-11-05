@@ -373,6 +373,13 @@ h1 {
   letter-spacing: -0.015em;
 }
 
+.workflow-formerly {
+  margin-top: -2px;
+  color: var(--accent-text);
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+
 .workflow-description {
   max-width: 60ch;
   color: var(--muted);

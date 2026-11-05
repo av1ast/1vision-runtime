@@ -112,6 +112,11 @@ function renderWorkflows(isBusy = false) {
           <span class="workflow-number">${String(index + 1).padStart(2, "0")}</span>
           <span class="workflow-body">
             <span class="workflow-title">${escapeText(workflow.title)}</span>
+            ${
+              workflow.formerly
+                ? `<span class="workflow-formerly">Formerly ${escapeText(workflow.formerly)}</span>`
+                : ""
+            }
             <span class="workflow-description">${escapeText(workflow.description)}</span>
           </span>
           <span class="workflow-aside">
